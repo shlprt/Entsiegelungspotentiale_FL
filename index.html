@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Map</title>
+    <title>Interactive Map with Supabase</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-draw/dist/leaflet.draw.css">
     <style>
         #map { height: 100vh; }
         .leaflet-draw { background-color: white; }
@@ -12,10 +13,14 @@
 </head>
 <body>
     <div id="map"></div>
+    
+    <!-- Leaflet.js and Leaflet Draw -->
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet-draw/dist/leaflet.draw.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.2/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.2/firebase-firestore.js"></script>
+    
+    <!-- Supabase Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    
     <script>
         // Initialize the map
         var map = L.map('map').setView([51.505, -0.09], 13);
@@ -24,17 +29,10 @@
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
-        // Initialize Firebase
-        const firebaseConfig = {
-            apiKey: "YOUR_FIREBASE_API_KEY",
-            authDomain: "YOUR_FIREBASE_PROJECT_ID.firebaseapp.com",
-            projectId: "YOUR_FIREBASE_PROJECT_ID",
-            storageBucket: "YOUR_FIREBASE_PROJECT_ID.appspot.com",
-            messagingSenderId: "YOUR_FIREBASE_MESSAGING_SENDER_ID",
-            appId: "YOUR_FIREBASE_APP_ID"
-        };
-        const app = firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
+        // Initialize Supabase
+        const supabaseUrl = 'https://YOUR_SUPABASE_URL.supabase.co';
+        const supabaseKey = 'YOUR_SUPABASE_ANON_KEY';
+        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
         // Initialize the Leaflet Draw plugin
         var drawnItems = new L.FeatureGroup();
@@ -47,25 +45,44 @@
         });
         map.addControl(drawControl);
 
-        // Save drawn shapes to Firebase
-        map.on(L.Draw.Event.CREATED, function (event) {
+        // Save drawn shapes to Supabase
+        map.on(L.Draw.Event.CREATED, async function (event) {
             var layer = event.layer;
             drawnItems.addLayer(layer);
 
             var geojson = layer.toGeoJSON();
             var additionalInfo = prompt("Enter additional information:");
 
-            db.collection("polygons").add({
-                geojson: geojson,
-                additionalInfo: additionalInfo
-            })
-            .then(() => {
-                alert("Polygon saved successfully!");
-            })
-            .catch((error) => {
+            const { data, error } = await supabase
+                .from('polygons')
+                .insert([{ geojson: geojson, additional_info: additionalInfo }]);
+
+            if (error) {
                 console.error("Error saving polygon: ", error);
-            });
+                alert("An error occurred while saving the polygon.");
+            } else {
+                alert("Polygon saved successfully!");
+            }
         });
+
+        // Optionally, load and display saved polygons
+        async function loadPolygons() {
+            const { data, error } = await supabase
+                .from('polygons')
+                .select('*');
+
+            if (error) {
+                console.error("Error loading polygons: ", error);
+                return;
+            }
+
+            data.forEach(item => {
+                var layer = L.geoJSON(item.geojson).addTo(map);
+                drawnItems.addLayer(layer);
+            });
+        }
+
+        loadPolygons(); // Call the function to load existing polygons
     </script>
 </body>
 </html>
