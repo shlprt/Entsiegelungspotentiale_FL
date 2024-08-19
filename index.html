@@ -30,8 +30,8 @@
         }).addTo(map);
 
         // Initialize Supabase
-        const supabaseUrl = 'https://YOUR_SUPABASE_URL.supabase.co';
-        const supabaseKey = 'YOUR_SUPABASE_ANON_KEY';
+        const supabaseUrl = 'https://glphujwsslaywebsfztn.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdscGh1andzc2xheXdlYnNmenRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjQwNTg1NDEsImV4cCI6MjAzOTYzNDU0MX0.-45kHsYFGbbkUp6CnGz3cAeQnipsnLQBQfD9RfDQlyU';
         const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
         // Initialize the Leaflet Draw plugin
@@ -54,8 +54,8 @@
             var additionalInfo = prompt("Enter additional information:");
 
             const { data, error } = await supabase
-                .from('polygons')
-                .insert([{ geojson: geojson, additional_info: additionalInfo }]);
+                .from('A_Entsiegelung')
+                .insert([{ geojson: geojson, created_at: created_at, surface_type: surface_type, information: information }]);
 
             if (error) {
                 console.error("Error saving polygon: ", error);
@@ -68,7 +68,7 @@
         // Optionally, load and display saved polygons
         async function loadPolygons() {
             const { data, error } = await supabase
-                .from('polygons')
+                .from('A_Entsiegelung')
                 .select('*');
 
             if (error) {
