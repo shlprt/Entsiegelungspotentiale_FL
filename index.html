@@ -12,18 +12,16 @@
     </style>
 </head>
 <body>
-    <div id="map"></div>
-    
+    <div id="map"></div>  
     <!-- Leaflet.js and Leaflet Draw -->
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet-draw/dist/leaflet.draw.js"></script>
-    
     <!-- Supabase Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
     
     <script>
         // Initialize the map
-        var map = L.map('map').setView([51.505, -0.09], 13);
+        var map = L.map('map').setView(54.775, 9.45],12);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors'
