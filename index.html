@@ -10,6 +10,7 @@
         #map { height: 100vh; }
         .leaflet-draw { background-color: white; }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/uuid/8.3.2/uuid.min.js"></script>
 </head>
 <body>
     <div id="map"></div>  
@@ -49,11 +50,12 @@
             drawnItems.addLayer(layer);
 
             var geojson = layer.toGeoJSON();
-            var additionalInfo = prompt("Enter additional information:");
-
+            var information = prompt("Enter additional information:");
+            var uniqueId = uuid.v4(); 
+            
             const { data, error } = await supabase
                 .from('A_Entsiegelung')
-                .insert([{ geojson: geojson, created_at: created_at, surface_type: surface_type, information: information }]);
+                .insert([{id: uniqueId, geojson: geojson, created_at: created_at, information: information}]);
 
             if (error) {
                 console.error("Error saving polygon: ", error);
