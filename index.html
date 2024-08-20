@@ -21,6 +21,11 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
     
     <script>
+        // Initialize Supabase
+        const supabaseUrl = 'https://glphujwsslaywebsfztn.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdscGh1andzc2xheXdlYnNmenRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjQwNTg1NDEsImV4cCI6MjAzOTYzNDU0MX0.-45kHsYFGbbkUp6CnGz3cAeQnipsnLQBQfD9RfDQlyU';
+        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+        
         // Initialize the map
         var map = L.map('map').setView([54.775, 9.45],12);
 
@@ -28,18 +33,22 @@
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
-        // Initialize Supabase
-        const supabaseUrl = 'https://glphujwsslaywebsfztn.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdscGh1andzc2xheXdlYnNmenRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjQwNTg1NDEsImV4cCI6MjAzOTYzNDU0MX0.-45kHsYFGbbkUp6CnGz3cAeQnipsnLQBQfD9RfDQlyU';
-        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+       
 
         // Initialize the Leaflet Draw plugin
         var drawnItems = new L.FeatureGroup();
         map.addLayer(drawnItems);
 
-        var drawControl = new L.Control.Draw({
+         var drawControl = new L.Control.Draw({
             edit: {
                 featureGroup: drawnItems
+            },
+            draw: {
+                polygon: true, // Ensure polygon drawing is enabled
+                polyline: false,
+                rectangle: false,
+                circle: false,
+                marker: false
             }
         });
         map.addControl(drawControl);
