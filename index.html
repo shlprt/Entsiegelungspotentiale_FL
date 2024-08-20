@@ -75,8 +75,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/uuid/8.3.2/uuid.min.js"></script>
 </head>
 <body>
-    <div id="map"></div>  
-
+    <div id="map"></div>
     <!-- Modal HTML -->
     <div id="UserInputModal" class="modal">
         <div class="modal-content">
@@ -85,7 +84,6 @@
                 <!-- Text Field 1 -->
                 <label for="field1">Information</label>
                 <input type="text" id="field1" name="field1"><br><br>
-
                 <!-- Dropdown Menu -->
                 <label for="dropdown">Oberflächentyp</label>
                 <select id="dropdown" name="dropdown">
@@ -93,60 +91,16 @@
                     <option value="Option 2">Beton</option>
                     <option value="Option 3">Pflaster</option>
                 </select><br><br>
-
-                <button type="button" onclick="submitOptions()">Submit</button>
+                <button type="button" id="submitButton">Submit</button>
             </form>
         </div>
     </div>
-    
     <!-- Leaflet.js and Leaflet Draw -->
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet-draw/dist/leaflet.draw.js"></script>
     <!-- Supabase Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
     <script>
-        var modal = document.getElementById("UserInputModal");
-        var span = document.getElementsByClassName("close")[0];
-
-        function openModal() {
-            modal.style.display = "block";
-        }
-
-        span.onclick = function() {
-            modal.style.display = "none";
-        }
-
-        window.onclick = function(event) {
-            if (event.target == modal) {
-                modal.style.display = "none";
-            }
-        }
-
-        var field1Value = '';
-        var dropdownValue = '';
-
-        function submitOptions() {
-            // Access the form
-            var form = document.getElementById("optionsForm");
-
-            // Get the values from the text fields
-            field1Value = form.elements["field1"].value;
-
-            // Get the value from the dropdown menu
-            dropdownValue = form.elements["dropdown"].value;
-
-            // Log or process the values
-            // console.log("Field 1: " + field1Value);
-            // console.log("Dropdown: " + dropdownValue);
-
-            // Optional: Alert the values
-            alert("Thank you for your contribution!");
-
-            // Close the modal after submission
-            modal.style.display = "none";
-        }
-
         // Initialize Supabase
         const supabaseUrl = 'https://glphujwsslaywebsfztn.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdscGh1andzc2xheXdlYnNmenRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjQwNTg1NDEsImV4cCI6MjAzOTYzNDU0MX0.-45kHsYFGbbkUp6CnGz3cAeQnipsnLQBQfD9RfDQlyU';
@@ -179,29 +133,77 @@
         });
         map.addControl(drawControl);
 
-        // Save drawn shapes to Supabase
-        map.on(L.Draw.Event.CREATED, async function(event) {
+        // Handle modal display and form submission
+        var modal = document.getElementById("UserInputModal");
+        var span = document.getElementsByClassName("close")[0];
+        var submitButton = document.getElementById("submitButton");
+        var formData = {}; // To store form data
+
+        function openModal() {
+            modal.style.display = "block";
+        }
+
+        span.onclick = function () {
+            modal.style.display = "none";
+        }
+
+        window.onclick = function (event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        function submitOptions() {
+            return new Promise((resolve) => {
+                var form = document.getElementById("optionsForm");
+                var field1Value = form.elements["field1"].value;
+                var dropdownValue = form.elements["dropdown"].value;
+
+                formData = {
+                    field1: field1Value,
+                    dropdown: dropdownValue
+                };
+
+                // Close the modal after submission
+                modal.style.display = "none";
+
+                // Resolve the promise after the modal closes
+                resolve();
+            });
+        }
+
+        // Save drawn shapes to Supabase and open the modal
+        map.on(L.Draw.Event.CREATED, async function (event) {
             var layer = event.layer;
             drawnItems.addLayer(layer);
 
             openModal();
-            var geojson = layer.toGeoJSON();
-            var uniqueId = uuid.v4(); 
 
-            const { data, error } = await _supabase
-                .from('A_Entsiegelung')
-                .insert([{
-                    id: uniqueId,
-                    geojson: geojson,
-                    information: field1Value
-                }]);
+            // Wait for the modal to be submitted
+            await new Promise(resolve => {
+                submitButton.onclick = async function () {
+                    await submitOptions();
 
-            if (error) {
-                console.error("Error saving polygon: ", error);
-                alert("An error occurred while saving the polygon.");
-            } else {
-                alert("Polygon saved successfully!");
-            }
+                    var geojson = layer.toGeoJSON();
+                    var uniqueId = uuid.v4();
+
+                    const { data, error } = await _supabase
+                        .from('A_Entsiegelung')
+                        .insert([{
+                            id: uniqueId,
+                            geojson: geojson,
+                            information: formData.field1,
+                            surface_type: formData.dropdown
+                        }]);
+
+                    if (error) {
+                        console.error("Error saving polygon: ", error);
+                        alert("An error occurred while saving the polygon.");
+                    } else {
+                        alert("Polygon saved successfully!");
+                    }
+                };
+            });
         });
 
         // Optionally, load and display saved polygons
@@ -221,7 +223,7 @@
             });
         }
 
-        loadPolygons(); // Call the function to load existing polygons
+        //loadPolygons(); // Call the function to load existing polygons
     </script>
 </body>
 </html>
