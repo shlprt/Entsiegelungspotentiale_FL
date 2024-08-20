@@ -9,28 +9,72 @@
     <style>
         #map { height: 100vh; }
         .leaflet-draw { background-color: white; }
-        /* Modal CSS */
+        /* The Modal (background) */
+
         .modal {
-          display: none;
-          position: fixed;
-          z-index: 1;
-          padding-top: 100px;
+          display: none; /* Hidden by default */
+          position: fixed; /* Stay in place */
+          z-index: 1000; /* Sit on top */
           left: 0;
           top: 0;
-          width: 100%;
-          height: 100%;
-          overflow: auto;
-          background-color: rgb(0,0,0);
-          background-color: rgba(0,0,0,0.4);
+          width: 100%; /* Full width */
+          height: 100%; /* Full height */
+          overflow: auto; /* Enable scroll if needed */
+          background-color: rgba(0,0,0,0.8); /* Black w/ opacity for a darker background */
         }
 
+        /* Modal Content/Box */
         .modal-content {
-          background-color: #fefefe;
-          margin: auto;
-          padding: 20px;
-          border: 1px solid #888;
-          width: 80%;
-        }    
+          background-color: #fff; /* White background */
+          border-radius: 10px; /* Rounded corners */
+          margin: 5% auto; /* 5% from the top and centered */
+          padding: 20px; /* Padding inside the box */
+          border: 1px solid #888; /* Light border */
+          width: 50%; /* Adjust width as needed */
+          box-shadow: 0px 5px 15px rgba(0,0,0,0.3); /* Subtle shadow */
+        }
+
+        /* The Close Button */
+        .close {
+          color: #aaa;
+          float: right;
+          font-size: 24px;
+          font-weight: bold;
+          margin-left: 15px;
+        }
+
+        .close:hover,
+        .close:focus {
+          color: #000;
+          text-decoration: none;
+          cursor: pointer;
+        }
+
+        /* Form Elements */
+        .modal-content form label {
+          display: block;
+          margin: 10px 0;
+          font-size: 18px; /* Bigger font for better readability */
+        }
+
+        .modal-content form input[type="checkbox"] {
+          margin-right: 10px;
+        }
+
+        .modal-content form button {
+          background-color: #4CAF50; /* Green background */
+          color: white; /* White text */
+          padding: 10px 20px;
+          margin-top: 20px;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+          font-size: 18px;
+        }
+
+        .modal-content form button:hover {
+          background-color: #45a049; /* Darker green on hover */
+        }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/uuid/8.3.2/uuid.min.js"></script>
 </head>
@@ -41,10 +85,18 @@
       <div class="modal-content">
         <span class="close">&times;</span>
         <form id="optionsForm">
-          <label><input type="checkbox" name="options" value="Option 1"> Option 1</label><br>
-          <label><input type="checkbox" name="options" value="Option 2"> Option 2</label><br>
-          <label><input type="checkbox" name="options" value="Option 3"> Option 3</label><br>
-          <label><input type="checkbox" name="options" value="Option 4"> Option 4</label><br>
+          <!-- Text Field 1 -->
+          <label for="field1">Information</label>
+          <input type="text" id="field1" name="field1"><br><br>
+
+          <!-- Dropdown Menu -->
+          <label for="dropdown">Oberflächentyp</label>
+          <select id="dropdown" name="dropdown">
+            <option value="Option 1">Asphalt</option>
+            <option value="Option 2">Beton</option>
+            <option value="Option 3">Pflaster</option>
+          </select><br><br>
+
           <button type="button" onclick="submitOptions()">Submit</button>
         </form>
       </div>
@@ -54,7 +106,7 @@
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet-draw/dist/leaflet.draw.js"></script>
     <!-- Supabase Client -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <script>
     
@@ -74,23 +126,38 @@
                 modal.style.display = "none";
             }
         }
+			
+       var field1Value = '';
+			 var dropdownValue = '';
+       
+       function submitOptions() {
+          // Access the form
+          var form = document.getElementById("optionsForm");
 
-        function submitOptions() {
-            var form = document.getElementById("optionsForm");
-            var selectedOptions = [];
-            var checkboxes = form.elements["options"];
-
-            for (var i = 0; i < checkboxes.length; i++) {
-                if (checkboxes[i].checked) {
-                    selectedOptions.push(checkboxes[i].value);
-                }
-            }
-
-            alert("You selected: " + selectedOptions.join(", "));
-            modal.style.display = "none"; // Close the modal after submission
-        }
-        // Initialize Supabase
+          // Get the values from the text fields
+          field1Value = form.elements["field1"].value;
       
+          // Get the value from the dropdown menu
+          dropdownValue = form.elements["dropdown"].value;
+
+          // Log or process the values
+          //console.log("Field 1: " + field1Value);
+          //console.log("Dropdown: " + dropdownValue);
+
+          // Optional: Alert the values
+          alert("Field 1: " + field1Value + "\nDropdown: " + dropdownValue);
+
+          // Close the modal after submission
+          var modal = document.getElementById("'UserInputModal'");
+          modal.style.display = "none";
+        }
+              // Initialize Supabase
+      	
+        const supabaseUrl = 'https://glphujwsslaywebsfztn.supabase.co';
+			  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdscGh1andzc2xheXdlYnNmenRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjQwNTg1NDEsImV4cCI6MjAzOTYzNDU0MX0.-45kHsYFGbbkUp6CnGz3cAeQnipsnLQBQfD9RfDQlyU';
+        const { createClient } = supabase
+        const _supabase = createClient(supabaseUrl, supabaseKey);
+        
         // Initialize the map
         var map = L.map('map').setView([54.775, 9.45],12);
 
@@ -112,6 +179,7 @@
                 polyline: false,
                 rectangle: false,
                 circle: false,
+                circlemarker: false,
                 marker: false
             }
         });
@@ -124,12 +192,17 @@
 						
             openModal();
             var geojson = layer.toGeoJSON();
-            var information = prompt("Enter additional information:");
+            //var information = prompt("Enter additional information:");
+            
             var uniqueId = uuid.v4(); 
             
             const { data, error } = await supabase
                 .from('A_Entsiegelung')
-                .insert([{id: uniqueId, geojson: geojson, created_at: created_at, information: information}]);
+                .insert([{
+                	id: uniqueId, 
+                  geojson: geojson, 
+                  information: field1Value}
+            ]);
 
             if (error) {
                 console.error("Error saving polygon: ", error);
