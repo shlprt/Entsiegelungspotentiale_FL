@@ -7,99 +7,96 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet-draw/dist/leaflet.draw.css">
     <style>
-        #map { height: 100vh; }
-        .leaflet-draw { background-color: white; }
-        /* The Modal (background) */
-
-        .modal {
-          display: none; /* Hidden by default */
-          position: fixed; /* Stay in place */
-          z-index: 1000; /* Sit on top */
-          left: 0;
-          top: 0;
-          width: 100%; /* Full width */
-          height: 100%; /* Full height */
-          overflow: auto; /* Enable scroll if needed */
-          background-color: rgba(0,0,0,0.8); /* Black w/ opacity for a darker background */
+        #map {
+            height: 100vh;
         }
-
+        .leaflet-draw {
+            background-color: white;
+        }
+        /* The Modal (background) */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1000; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0, 0, 0, 0.8); /* Black w/ opacity for a darker background */
+        }
         /* Modal Content/Box */
         .modal-content {
-          background-color: #fff; /* White background */
-          border-radius: 10px; /* Rounded corners */
-          margin: 5% auto; /* 5% from the top and centered */
-          padding: 20px; /* Padding inside the box */
-          border: 1px solid #888; /* Light border */
-          width: 50%; /* Adjust width as needed */
-          box-shadow: 0px 5px 15px rgba(0,0,0,0.3); /* Subtle shadow */
+            background-color: #fff; /* White background */
+            border-radius: 10px; /* Rounded corners */
+            margin: 5% auto; /* 5% from the top and centered */
+            padding: 20px; /* Padding inside the box */
+            border: 1px solid #888; /* Light border */
+            width: 50%; /* Adjust width as needed */
+            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3); /* Subtle shadow */
         }
-
         /* The Close Button */
         .close {
-          color: #aaa;
-          float: right;
-          font-size: 24px;
-          font-weight: bold;
-          margin-left: 15px;
+            color: #aaa;
+            float: right;
+            font-size: 24px;
+            font-weight: bold;
+            margin-left: 15px;
         }
-
         .close:hover,
         .close:focus {
-          color: #000;
-          text-decoration: none;
-          cursor: pointer;
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
         }
-
         /* Form Elements */
         .modal-content form label {
-          display: block;
-          margin: 10px 0;
-          font-size: 18px; /* Bigger font for better readability */
+            display: block;
+            margin: 10px 0;
+            font-size: 18px; /* Bigger font for better readability */
         }
-
         .modal-content form input[type="checkbox"] {
-          margin-right: 10px;
+            margin-right: 10px;
         }
-
         .modal-content form button {
-          background-color: #4CAF50; /* Green background */
-          color: white; /* White text */
-          padding: 10px 20px;
-          margin-top: 20px;
-          border: none;
-          border-radius: 5px;
-          cursor: pointer;
-          font-size: 18px;
+            background-color: #4CAF50; /* Green background */
+            color: white; /* White text */
+            padding: 10px 20px;
+            margin-top: 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
         }
-
         .modal-content form button:hover {
-          background-color: #45a049; /* Darker green on hover */
+            background-color: #45a049; /* Darker green on hover */
         }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/uuid/8.3.2/uuid.min.js"></script>
 </head>
 <body>
     <div id="map"></div>  
+
     <!-- Modal HTML -->
     <div id="UserInputModal" class="modal">
-      <div class="modal-content">
-        <span class="close">&times;</span>
-        <form id="optionsForm">
-          <!-- Text Field 1 -->
-          <label for="field1">Information</label>
-          <input type="text" id="field1" name="field1"><br><br>
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <form id="optionsForm">
+                <!-- Text Field 1 -->
+                <label for="field1">Information</label>
+                <input type="text" id="field1" name="field1"><br><br>
 
-          <!-- Dropdown Menu -->
-          <label for="dropdown">Oberflächentyp</label>
-          <select id="dropdown" name="dropdown">
-            <option value="Option 1">Asphalt</option>
-            <option value="Option 2">Beton</option>
-            <option value="Option 3">Pflaster</option>
-          </select><br><br>
+                <!-- Dropdown Menu -->
+                <label for="dropdown">Oberflächentyp</label>
+                <select id="dropdown" name="dropdown">
+                    <option value="Option 1">Asphalt</option>
+                    <option value="Option 2">Beton</option>
+                    <option value="Option 3">Pflaster</option>
+                </select><br><br>
 
-          <button type="button" onclick="submitOptions()">Submit</button>
-        </form>
-      </div>
+                <button type="button" onclick="submitOptions()">Submit</button>
+            </form>
+        </div>
     </div>
     
     <!-- Leaflet.js and Leaflet Draw -->
@@ -109,7 +106,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <script>
-    
         var modal = document.getElementById("UserInputModal");
         var span = document.getElementsByClassName("close")[0];
 
@@ -126,51 +122,49 @@
                 modal.style.display = "none";
             }
         }
-			
-       var field1Value = '';
-			 var dropdownValue = '';
-       
-       function submitOptions() {
-          // Access the form
-          var form = document.getElementById("optionsForm");
 
-          // Get the values from the text fields
-          field1Value = form.elements["field1"].value;
-      
-          // Get the value from the dropdown menu
-          dropdownValue = form.elements["dropdown"].value;
+        var field1Value = '';
+        var dropdownValue = '';
 
-          // Log or process the values
-          //console.log("Field 1: " + field1Value);
-          //console.log("Dropdown: " + dropdownValue);
+        function submitOptions() {
+            // Access the form
+            var form = document.getElementById("optionsForm");
 
-          // Optional: Alert the values
-          alert("Field 1: " + field1Value + "\nDropdown: " + dropdownValue);
+            // Get the values from the text fields
+            field1Value = form.elements["field1"].value;
 
-          // Close the modal after submission
-          var modal = document.getElementById("'UserInputModal'");
-          modal.style.display = "none";
+            // Get the value from the dropdown menu
+            dropdownValue = form.elements["dropdown"].value;
+
+            // Log or process the values
+            // console.log("Field 1: " + field1Value);
+            // console.log("Dropdown: " + dropdownValue);
+
+            // Optional: Alert the values
+            alert("Thank you for your contribution!");
+
+            // Close the modal after submission
+            modal.style.display = "none";
         }
-              // Initialize Supabase
-      	
+
+        // Initialize Supabase
         const supabaseUrl = 'https://glphujwsslaywebsfztn.supabase.co';
-			  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdscGh1andzc2xheXdlYnNmenRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjQwNTg1NDEsImV4cCI6MjAzOTYzNDU0MX0.-45kHsYFGbbkUp6CnGz3cAeQnipsnLQBQfD9RfDQlyU';
-        const { createClient } = supabase
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdscGh1andzc2xheXdlYnNmenRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjQwNTg1NDEsImV4cCI6MjAzOTYzNDU0MX0.-45kHsYFGbbkUp6CnGz3cAeQnipsnLQBQfD9RfDQlyU';
+        const { createClient } = supabase;
         const _supabase = createClient(supabaseUrl, supabaseKey);
-        
+
         // Initialize the map
-        var map = L.map('map').setView([54.775, 9.45],12);
+        var map = L.map('map').setView([54.775, 9.45], 12);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
-       
         // Initialize the Leaflet Draw plugin
         var drawnItems = new L.FeatureGroup();
         map.addLayer(drawnItems);
 
-         var drawControl = new L.Control.Draw({
+        var drawControl = new L.Control.Draw({
             edit: {
                 featureGroup: drawnItems
             },
@@ -186,23 +180,21 @@
         map.addControl(drawControl);
 
         // Save drawn shapes to Supabase
-        map.on(L.Draw.Event.CREATED, async function (event) {
+        map.on(L.Draw.Event.CREATED, async function(event) {
             var layer = event.layer;
             drawnItems.addLayer(layer);
-						
+
             openModal();
             var geojson = layer.toGeoJSON();
-            //var information = prompt("Enter additional information:");
-            
             var uniqueId = uuid.v4(); 
-            
-            const { data, error } = await supabase
+
+            const { data, error } = await _supabase
                 .from('A_Entsiegelung')
                 .insert([{
-                	id: uniqueId, 
-                  geojson: geojson, 
-                  information: field1Value}
-            ]);
+                    id: uniqueId,
+                    geojson: geojson,
+                    information: field1Value
+                }]);
 
             if (error) {
                 console.error("Error saving polygon: ", error);
@@ -214,7 +206,7 @@
 
         // Optionally, load and display saved polygons
         async function loadPolygons() {
-            const { data, error } = await supabase
+            const { data, error } = await _supabase
                 .from('A_Entsiegelung')
                 .select('*');
 
@@ -230,8 +222,6 @@
         }
 
         loadPolygons(); // Call the function to load existing polygons
-     
-
     </script>
 </body>
 </html>
